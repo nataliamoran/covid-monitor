@@ -1,0 +1,127 @@
+name: Test build
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual test'
+
+jobs:
+  test_django_and_deploy_be:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        python-version: [3.8]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run Tests
+        run: |
+          cd backend
+          python manage.py test
+
+      - name: Sets env vars to dev
+        run: |
+          echo "HOST=ec2-34-216-118-180.us-west-2.compute.amazonaws.com" >> $GITHUB_ENV
+        if: startsWith(github.ref, 'refs/heads/develop')
+      - name: Sets env vars to prod
+        run: |
+          echo "HOST=ec2-54-202-56-60.us-west-2.compute.amazonaws.com" >> $GITHUB_ENV
+        if: startsWith(github.ref, 'refs/heads/main')
+      - name: Add server to known_hosts
+        uses: kielabokkie/ssh-key-and-known-hosts-action@v1
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+          ssh-host: ${{env.HOST}}
+      - name: Copy backend folder to server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{env.HOST}}
+          username: ${{ secrets.USERNAME_DEV }}
+          key: ${{ secrets.SSH_KEY }}
+          source: backend
+          target: /home/ubuntu/projects/dev
+          overwrite: true
+      - name: Copy requirements.txt to server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{env.HOST}}
+          username: ${{ secrets.USERNAME_DEV }}
+          key: ${{ secrets.SSH_KEY }}
+          source: requirements.txt
+          target: /home/ubuntu/projects/dev
+          overwrite: true
+      - name: Reactivate services on server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{env.HOST}}
+          username: ${{ secrets.USERNAME_DEV }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd ~/projects/dev
+            source env/bin/activate
+            pip install -r requirements.txt
+            cd backend
+            python manage.py migrate
+            sudo systemctl restart gunicorn-dev.service
+
+  build_fe_and_deploy:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies
+        run: |
+          cd monitor-app
+          npm install
+      - name: Build
+        run: |
+          cd monitor-app
+          npm run build --if-present
+          mv build fe
+          cd ..
+
+      - name: Sets env vars to dev server
+        run: |
+          echo "HOST=ec2-34-216-118-180.us-west-2.compute.amazonaws.com" >> $GITHUB_ENV
+        if: startsWith(github.ref, 'refs/heads/develop')
+      - name: Sets env vars to prod server
+        run: |
+          echo "HOST=ec2-54-202-56-60.us-west-2.compute.amazonaws.com" >> $GITHUB_ENV
+        if: startsWith(github.ref, 'refs/heads/main')
+      - name: Add server to known_hosts
+        uses: kielabokkie/ssh-key-and-known-hosts-action@v1
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+          ssh-host: ${{ env.HOST }}
+      - name: Copy frontend build to server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ env.HOST }}
+          username: ${{ secrets.USERNAME_DEV }}
+          key: ${{ secrets.SSH_KEY }}
+          source: monitor-app/fe
+          target: /home/ubuntu/projects/dev
+          overwrite: true
+          strip_components: 1
