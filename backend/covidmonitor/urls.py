@@ -4,7 +4,7 @@ from rest_framework import routers
 from . import views
 
 router = routers.DefaultRouter()
-router.register(r'date', views.DateView, basename='covid_monitor_date')
+router.register(r'date', views.DateView, basename='date')
 
 
 urlpatterns = [

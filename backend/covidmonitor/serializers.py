@@ -2,24 +2,14 @@ from .models import *
 from rest_framework import serializers
 
 
-class CountrySerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Country
-        fields = ['id', 'name', ]
-
-
-class ProvinceStateSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = ProvinceState
-        fields = ['id', 'name', ]
-
-
 class CovidMonitorDateSerializer(serializers.ModelSerializer):
+    #def __init__(self, *args, **kwargs):
+    #    many = kwargs.pop('many', True)
+    #    super(CovidMonitorDateSerializer, self).__init__(many=many, *args, **kwargs)
+
 
     class Meta:
-        model = CovidMonitorDate
+        model = CovidMonitorDate()
         fields = ['id', 'title', 'date', 'country', 'province_state',
-                  'time_series_num', 'daily_reports_num',
-                  'created_at', 'updated_at', ]
+                  'number', 'created_at', 'updated_at']
+

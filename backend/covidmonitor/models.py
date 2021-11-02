@@ -19,10 +19,9 @@ class ProvinceState(models.Model):
 class CovidMonitorDate(models.Model):
     title = models.CharField(max_length=255)
     date = models.DateTimeField()
-    country = models.ForeignKey(Country, on_delete=models.CASCADE, blank=False, null=False, related_name='+')
-    province_state = models.ForeignKey(ProvinceState, on_delete=models.CASCADE, blank=False, null=False, related_name='+')
-    time_series_num = models.IntegerField(blank=True, null=True)
-    daily_reports_num = models.IntegerField(blank=True, null=True)
+    country = models.CharField(max_length=255)
+    province_state = models.CharField(max_length=255)
+    number = models.IntegerField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
