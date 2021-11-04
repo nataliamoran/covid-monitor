@@ -115,3 +115,30 @@ class DateView(viewsets.ModelViewSet):
         elif file_type == SERIES_TYPE_ONE or file_type == SERIES_TYPE_TWO:
             self.write_series(covid_monitor_df, file_name, file_type)
             return Response(status=status.HTTP_201_CREATED)
+
+    def list(self, request, *args, **kwargs):
+        queryset = CovidMonitorDate.objects.all()
+        titles = request.data["titles"]
+        countries = request.data["countries"]
+        provinces_states = request.data["provinces_states"]
+        combined_keys = request.data["combined_keys"]
+        date_from = datetime.datetime.strptime(request.data["date_from"], "%m/%d/%y").date()
+        date_to = datetime.datetime.strptime(request.data["date_to"], "%m/%d/%y").date()
+
+        queryset = queryset.filter(date__gte=date_from, date__lte=date_to, )
+        if len(titles) > 0:
+            queryset = queryset.filter(title__in=titles,)
+        if len(countries) > 0:
+            queryset = queryset.filter(country__in=countries,)
+        if len(provinces_states) > 0:
+            queryset = queryset.filter(province_state__in=provinces_states,)
+        if len(combined_keys) > 0:
+            queryset = queryset.filter(combined_key__in=combined_keys,)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
