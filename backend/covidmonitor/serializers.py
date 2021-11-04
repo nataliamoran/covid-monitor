@@ -6,6 +6,6 @@ class CovidMonitorDateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CovidMonitorDate
-        fields = ['id', 'title', 'date', 'country', 'province_state',
+        fields = ['id', 'title', 'date', 'country', 'province_state', "combined_key",
                   'number', 'created_at', 'updated_at']
 

@@ -50,13 +50,20 @@ class DateView(viewsets.ModelViewSet):
     serializer_class = CovidMonitorDateSerializer
 
     def write_date(self, dates_json_list):
-        for item in dates_json_list:
-            # save a new order to the db
-            serializer = self.get_serializer(data=item)
-            serializer.is_valid(raise_exception=True)
-            self.perform_create(serializer)
-            headers = self.get_success_headers(serializer.data)
-        return Response(status=status.HTTP_201_CREATED)
+        for date_item in dates_json_list:
+            try:
+                obj = CovidMonitorDate.objects.get(title=date_item["title"],
+                                                   date=date_item["date"],
+                                                   country=date_item["country"],
+                                                   province_state=date_item["province_state"],
+                                                   combined_key=date_item["combined_key"])
+                if obj.number != date_item["number"]:
+                    for key, value in date_item.items():
+                        setattr(obj, key, value)
+                    obj.save()
+            except CovidMonitorDate.DoesNotExist:
+                obj = CovidMonitorDate(**date_item)
+                obj.save()
 
     def write_series(self, df, file_name, file_type):
         lower_file = file_name.lower()
@@ -82,12 +89,14 @@ class DateView(viewsets.ModelViewSet):
             else:
                 country = row["Country_Region"]
                 province_state = row["Province_State"]
+            combined_key = row["Combined_Key"] if "Combined_Key" in df.columns.tolist() else None
             for date in dates:
                 date_data = {
                     "title": title,
-                    "date": datetime.datetime.strptime(date, "%m/%d/%y"),
+                    "date": datetime.datetime.strptime(date, "%m/%d/%y").date(),
                     "country": country,
                     "province_state": province_state,
+                    "combined_key": combined_key,
                     "number": row[date]
                 }
                 dates_json_list.append(date_data)
@@ -105,3 +114,4 @@ class DateView(viewsets.ModelViewSet):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         elif file_type == SERIES_TYPE_ONE or file_type == SERIES_TYPE_TWO:
             self.write_series(covid_monitor_df, file_name, file_type)
+            return Response(status=status.HTTP_201_CREATED)
