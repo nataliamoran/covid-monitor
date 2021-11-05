@@ -8,6 +8,7 @@ from rest_framework.reverse import reverse
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 TIME_SERIES_CONFIRMED_GLOBAL_PATH = f'{DIR_PATH}/test_files/time_series_covid19_confirmed_global.csv'
 TIME_SERIES_CONFIRMED_US_PATH = f'{DIR_PATH}/test_files/time_series_covid19_confirmed_US.csv'
+DAILY_REPORT_PATH = f'{DIR_PATH}/test_files/01-01-2021.csv'
 
 
 class MonitorClient:
@@ -73,4 +74,269 @@ class TestMonitor(TestCase):
         res = self.cli.date_filter_list(filter_data)
         # assert
         self.assertEquals(200, res.status_code)
+        self.assertEquals(12, len(res.data))
+
+    def test__filter_titles__green(self):
+        # arrange
+        filter_data = {
+            "titles": ["confirmed", "active"],
+            "countries": [],
+            "provinces_states": [],
+            "combined_keys": [],
+            "date_from": "01/01/21",
+            "date_to": "01/01/21",
+            "format": "JSON"
+        }
+        self.cli.date_create(DAILY_REPORT_PATH)
+        # act
+        res = self.cli.date_filter_list(filter_data)
+        # assert
+        self.assertEquals(200, res.status_code)
         self.assertEquals(8, len(res.data))
+
+    def test__filter_provinces_states__green(self):
+        # arrange
+        filter_data = {
+            "titles": [],
+            "countries": [],
+            "provinces_states": ["California", "Idaho"],
+            "combined_keys": [],
+            "date_from": "01/23/20",
+            "date_to": "01/25/20",
+            "format": "JSON"
+        }
+        self.cli.date_create(TIME_SERIES_CONFIRMED_US_PATH)
+        # act
+        res = self.cli.date_filter_list(filter_data)
+        # assert
+        self.assertEquals(200, res.status_code)
+        self.assertEquals(6, len(res.data))
+
+    def test__filter_combined_keys__green(self):
+        # arrange
+        filter_data = {
+            "titles": [],
+            "countries": [],
+            "provinces_states": [],
+            "combined_keys": ["Baldwin, Alabama, US", "Ventura, California, US"],
+            "date_from": "01/23/20",
+            "date_to": "01/25/20",
+            "format": "JSON"
+        }
+        self.cli.date_create(TIME_SERIES_CONFIRMED_US_PATH)
+        # act
+        res = self.cli.date_filter_list(filter_data)
+        # assert
+        self.assertEquals(200, res.status_code)
+        self.assertEquals(6, len(res.data))
+
+    def test__multiple_filters__green(self):
+        # arrange
+        filter_data = {
+            "titles": [],
+            "countries": ["Afghanistan", "US"],
+            "provinces_states": ["Alabama"],
+            "combined_keys": ["Barbour, Alabama, US"],
+            "date_from": "01/23/20",
+            "date_to": "01/25/20",
+            "format": "JSON"
+        }
+        self.cli.date_create(TIME_SERIES_CONFIRMED_US_PATH)
+        self.cli.date_create(TIME_SERIES_CONFIRMED_GLOBAL_PATH)
+        self.cli.date_create(DAILY_REPORT_PATH)
+        # act
+        res = self.cli.date_filter_list(filter_data)
+        # assert
+        self.assertEquals(200, res.status_code)
+        self.assertEquals(3, len(res.data))
+
+    def test_format__csv__green(self):
+        # arrange
+        filter_data = {
+            "titles": ["confirmed"],
+            "countries": ["Afghanistan"],
+            "provinces_states": [],
+            "combined_keys": [],
+            "date_from": "01/01/21",
+            "date_to": "01/01/21",
+            "format": "CSV"
+        }
+        expected_res = "id,title,date,country,province_state,combined_key,number,created_at,updated_at\n" \
+                       "1,confirmed,2021-01-01,Afghanistan,nan,Afghanistan,52513," \
+                       "2021-11-05T14:55:24.192416-04:00,2021-11-05T14:55:24.192488-04:00\n"
+        self.cli.date_create(DAILY_REPORT_PATH)
+        # act
+        res = self.cli.date_filter_list(filter_data)
+        # assert
+        self.assertEquals(200, res.status_code)
+        self.assertEquals(expected_res.split(',')[:-2], res.data.split(',')[:-2])
+
+    def test__bad_format_request__date_from_1__return_400(self):
+        # arrange
+        filter_data = {
+            "titles": [],
+            "countries": ["Afghanistan", "US"],
+            "provinces_states": ["Alabama"],
+            "combined_keys": ["Barbour, Alabama, US"],
+            "date_from": "123",
+            "date_to": "01/01/21",
+            "format": "JSON"
+        }
+        self.cli.date_create(DAILY_REPORT_PATH)
+        # act
+        res = self.cli.date_filter_list(filter_data)
+        # assert
+        self.assertEquals(400, res.status_code)
+
+    def test__bad_format_request__date_from_2__return_400(self):
+        # arrange
+        filter_data = {
+            "titles": [],
+            "countries": ["Afghanistan", "US"],
+            "provinces_states": ["Alabama"],
+            "combined_keys": ["Barbour, Alabama, US"],
+            "date_from": 1,
+            "date_to": "01/01/21",
+            "format": "JSON"
+        }
+        self.cli.date_create(DAILY_REPORT_PATH)
+        # act
+        res = self.cli.date_filter_list(filter_data)
+        # assert
+        self.assertEquals(400, res.status_code)
+
+    def test__bad_format_request__date_to_1__return_400(self):
+        # arrange
+        filter_data = {
+            "titles": [],
+            "countries": ["Afghanistan", "US"],
+            "provinces_states": ["Alabama"],
+            "combined_keys": ["Barbour, Alabama, US"],
+            "date_from": "01/01/21",
+            "date_to": "123",
+            "format": "JSON"
+        }
+        self.cli.date_create(DAILY_REPORT_PATH)
+        # act
+        res = self.cli.date_filter_list(filter_data)
+        # assert
+        self.assertEquals(400, res.status_code)
+
+    def test__bad_format_request__date_to_2__return_400(self):
+        # arrange
+        filter_data = {
+            "titles": [],
+            "countries": ["Afghanistan", "US"],
+            "provinces_states": ["Alabama"],
+            "combined_keys": ["Barbour, Alabama, US"],
+            "date_from": "01/01/21",
+            "date_to": 1,
+            "format": "JSON"
+        }
+        self.cli.date_create(DAILY_REPORT_PATH)
+        # act
+        res = self.cli.date_filter_list(filter_data)
+        # assert
+        self.assertEquals(400, res.status_code)
+
+    def test__bad_format_request__titles__return_400(self):
+        # arrange
+        filter_data = {
+            "titles": "",
+            "countries": ["Afghanistan", "US"],
+            "provinces_states": ["Alabama"],
+            "combined_keys": ["Barbour, Alabama, US"],
+            "date_from": "01/01/21",
+            "date_to": "01/01/21",
+            "format": "JSON"
+        }
+        self.cli.date_create(DAILY_REPORT_PATH)
+        # act
+        res = self.cli.date_filter_list(filter_data)
+        # assert
+        self.assertEquals(400, res.status_code)
+
+    def test__bad_format_request__countries__return_400(self):
+        # arrange
+        filter_data = {
+            "titles": [],
+            "countries": 1,
+            "provinces_states": ["Alabama"],
+            "combined_keys": ["Barbour, Alabama, US"],
+            "date_from": "01/01/21",
+            "date_to": "01/01/21",
+            "format": "JSON"
+        }
+        self.cli.date_create(DAILY_REPORT_PATH)
+        # act
+        res = self.cli.date_filter_list(filter_data)
+        # assert
+        self.assertEquals(400, res.status_code)
+
+    def test__bad_format_request__provinces__return_400(self):
+        # arrange
+        filter_data = {
+            "titles": [],
+            "countries": [],
+            "provinces_states": "",
+            "combined_keys": ["Barbour, Alabama, US"],
+            "date_from": "01/01/21",
+            "date_to": "01/01/21",
+            "format": "JSON"
+        }
+        self.cli.date_create(DAILY_REPORT_PATH)
+        # act
+        res = self.cli.date_filter_list(filter_data)
+        # assert
+        self.assertEquals(400, res.status_code)
+
+    def test__bad_format_request__combined_keys__return_400(self):
+        # arrange
+        filter_data = {
+            "titles": [],
+            "countries": [],
+            "provinces_states": [],
+            "combined_keys": 1,
+            "date_from": "01/01/21",
+            "date_to": "01/01/21",
+            "format": "JSON"
+        }
+        self.cli.date_create(DAILY_REPORT_PATH)
+        # act
+        res = self.cli.date_filter_list(filter_data)
+        # assert
+        self.assertEquals(400, res.status_code)
+
+    def test__bad_format_request__format_1__return_400(self):
+        # arrange
+        filter_data = {
+            "titles": [],
+            "countries": [],
+            "provinces_states": [],
+            "combined_keys": 1,
+            "date_from": "01/01/21",
+            "date_to": "01/01/21",
+            "format": "test"
+        }
+        self.cli.date_create(DAILY_REPORT_PATH)
+        # act
+        res = self.cli.date_filter_list(filter_data)
+        # assert
+        self.assertEquals(400, res.status_code)
+
+    def test__bad_format_request__format_2__return_400(self):
+        # arrange
+        filter_data = {
+            "titles": [],
+            "countries": [],
+            "provinces_states": [],
+            "combined_keys": 1,
+            "date_from": "01/01/21",
+            "date_to": "01/01/21",
+            "format": 1
+        }
+        self.cli.date_create(DAILY_REPORT_PATH)
+        # act
+        res = self.cli.date_filter_list(filter_data)
+        # assert
+        self.assertEquals(400, res.status_code)

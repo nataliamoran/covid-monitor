@@ -72,7 +72,7 @@ class DailyWriter(Writer):
                 try:
                     int(row[title])
                     date_data = {
-                        "title": title,
+                        "title": title.lower(),
                         "date": date,
                         "country": row["Country_Region"],
                         "province_state": row["Province_State"],
