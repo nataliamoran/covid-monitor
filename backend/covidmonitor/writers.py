@@ -42,41 +42,44 @@ class SeriesWriter(Writer):
                 province_state = row["Province_State"]
             combined_key = row["Combined_Key"] if "Combined_Key" in df.columns.tolist() else None
             for date in dates:
-                date_data = {
-                    "title": title,
-                    "date": datetime.datetime.strptime(date, "%m/%d/%y").date(),
-                    "country": country,
-                    "province_state": province_state,
-                    "combined_key": combined_key,
-                    "number": row[date]
-                }
-                dates_json_list.append(date_data)
+                try:
+                    int(row[date])
+                    date_data = {
+                        "title": title,
+                        "date": datetime.datetime.strptime(date, "%m/%d/%y").date(),
+                        "country": country,
+                        "province_state": province_state,
+                        "combined_key": combined_key,
+                        "number": row[date]
+                    }
+                    dates_json_list.append(date_data)
+                except ValueError:
+                    continue
         self.write_date(dates_json_list)
 
 
 class DailyWriter(Writer):
-    def write_daily(self, df, file_name, file_type):
-        date = datetime.datetime.strptime(file_name, "%m/%d/%Y").date()
+    def __init__(self, covid_monitor_df, file_type, date):
+        self.write_daily(covid_monitor_df, file_type, date)
+
+    def write_daily(self, df, file_type, date):
         dates_json_list = []
         for index, row in df.iterrows():
-            if file_type == 1:
-                country = row["Country/Region"]
-                province_state = row["Province/State"]
-            else:
-                country = row["Country_Region"]
-                province_state = row["Province_State"]
-            combined_key = row["Combined_Key"] if "Combined_Key" in df.columns.tolist() else None
-            titles = ["Confirmed", "Deaths", "Recovered", "Active"]
-            if "Combined_Key" in df.columns.tolist():
-                titles.append("Combined_Key")
+            combined_key = None
+            if file_type == 4:
+                combined_key = row["Combined_Key"]
             for title in ["Confirmed", "Deaths", "Recovered", "Active"]:
-                date_data = {
-                    "title": title,
-                    "date": date,
-                    "country": country,
-                    "province_state": province_state,
-                    "combined_key": combined_key,
-                    "number": row[title]
-                }
-                dates_json_list.append(date_data)
+                try:
+                    int(row[title])
+                    date_data = {
+                        "title": title,
+                        "date": date,
+                        "country": row["Country_Region"],
+                        "province_state": row["Province_State"],
+                        "combined_key": combined_key,
+                        "number": row[title]
+                    }
+                    dates_json_list.append(date_data)
+                except ValueError:
+                    continue
         self.write_date(dates_json_list)

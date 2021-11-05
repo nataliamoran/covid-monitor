@@ -5,7 +5,7 @@ from rest_framework import viewsets, status
 import datetime
 import pandas as pd
 from .csv_verfier import Verifier
-from .writers import SeriesWriter
+from .writers import SeriesWriter, DailyWriter
 from rest_framework.decorators import action
 
 
@@ -34,6 +34,9 @@ class DateView(viewsets.ModelViewSet):
         elif file_type == 1 or file_type == 2:
             SeriesWriter(covid_monitor_df, file_type, verifier.time_series_type(file_name))
             return Response(status=status.HTTP_201_CREATED)
+        DailyWriter(covid_monitor_df, file_type, datetime.datetime.strptime(file_name.split(".")[0], "%m-%d-%Y").date())
+        return Response(status=status.HTTP_201_CREATED)
+
 
     @action(detail=False, methods=['post'], url_name='filter_dates')
     def filter_dates(self, request):
