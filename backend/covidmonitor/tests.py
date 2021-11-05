@@ -43,6 +43,19 @@ class TestMonitor(TestCase):
         self.assertEquals(0, len(dates_before.data))
         self.assertEquals(1944, len(dates_after.data))
 
+    def test__content_time_series_global__green(self):
+        # arrange
+        # act
+        self.cli.date_create(TIME_SERIES_CONFIRMED_GLOBAL_PATH)
+        dates_after = self.cli.date_list()
+        # assert
+        self.assertEquals(0, dates_after.data[0]['number'])
+        self.assertEquals("confirmed", dates_after.data[0]['title'])
+        self.assertEquals('2020-01-23', dates_after.data[0]['date'])
+        self.assertEquals("Afghanistan", dates_after.data[0]['country'])
+        self.assertEquals('nan', dates_after.data[0]['province_state'])
+        self.assertEquals(None, dates_after.data[0]['combined_key'])
+
     def test__filter_countries__green(self):
         # arrange
         filter_data = {
