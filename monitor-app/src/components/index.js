@@ -82,13 +82,24 @@ class Monitor extends React.Component {
         this.forceUpdate();
         axios.post(DATES, requestData)
             .then((response) => {
-                this.setState({
-                    csv_upload_status: "success",
-                });
-                this.forceUpdate();
-                setTimeout(function () {
-                    this.setState({csv_upload_status: null,})
-                }.bind(this), 10000)
+                if (response.status === 201) {
+                    this.setState({
+                        csv_upload_status: "success",
+                    });
+                    this.forceUpdate();
+                    setTimeout(function () {
+                        this.setState({csv_upload_status: null,})
+                    }.bind(this), 10000)
+                } else {
+                    this.setState({
+                        csv_upload_status: "large-file",
+                    });
+                    this.forceUpdate();
+                    setTimeout(function () {
+                        this.setState({csv_upload_status: null,})
+                    }.bind(this), 60000*7)
+                }
+
             })
             .catch((error) => {
                 this.setState({
@@ -199,6 +210,12 @@ class Monitor extends React.Component {
             uploadStatus = (
                 <p className="failure">
                     Sorry, something went wrong. File failed to upload.
+                </p>
+            )
+        } else if (this.state.csv_upload_status && this.state.csv_upload_status === "large-file") {
+            uploadStatus = (
+                <p className="failure">
+                    You uploaded a large file. Processing this file can take up to 7-10 minutes. Please wait.
                 </p>
             )
         }
