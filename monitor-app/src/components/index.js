@@ -1,7 +1,7 @@
 import React from 'react';
 import './styles.css';
 import axios from 'axios';
-import {DATES, FILTER,} from "../config";
+import {DATES, FILTER, DELETE,} from "../config";
 
 
 class Monitor extends React.Component {
@@ -20,6 +20,7 @@ class Monitor extends React.Component {
             csv_file: null,
             filtered_data: null,
             csv_upload_status: null,
+            delete_all_status: null,
         };
 
         this.updateTitles = this.updateTitles.bind(this);
@@ -30,6 +31,7 @@ class Monitor extends React.Component {
         this.updateDateTo = this.updateDateTo.bind(this);
         this.updateFormat = this.updateFormat.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleDeleteAll = this.handleDeleteAll.bind(this);
     }
 
     downloadFile = ({data, fileName, fileType}) => {
@@ -97,7 +99,7 @@ class Monitor extends React.Component {
                     this.forceUpdate();
                     setTimeout(function () {
                         this.setState({csv_upload_status: null,})
-                    }.bind(this), 60000*7)
+                    }.bind(this), 60000 * 15)
                 }
 
             })
@@ -138,6 +140,25 @@ class Monitor extends React.Component {
 
     updateFormat(event) {
         this.setState({format: event.target.value});
+    }
+
+    handleDeleteAll(event) {
+        const data = {
+            method: 'DELETE'
+        };
+        fetch(DELETE, data)
+            .then((response) => {
+                this.setState({
+                    delete_all_status: 1,
+                });
+                this.forceUpdate();
+                setTimeout(function () {
+                    this.setState({delete_all_status: null,})
+                }.bind(this), 5000)
+            })
+            .catch(() => {
+            });
+        event.preventDefault();
     }
 
     handleSubmit(event) {
@@ -193,6 +214,15 @@ class Monitor extends React.Component {
     render() {
         let downloadButton;
         let uploadStatus;
+        let deleteStatus;
+
+        if (this.state.delete_all_status && this.state.delete_all_status === 1) {
+            deleteStatus = (
+                <p className="success">
+                    All data is successfully deleted from the database.
+                </p>
+            )
+        }
 
         if (this.state.csv_upload_status && this.state.csv_upload_status === "success") {
             uploadStatus = (
@@ -215,7 +245,7 @@ class Monitor extends React.Component {
         } else if (this.state.csv_upload_status && this.state.csv_upload_status === "large-file") {
             uploadStatus = (
                 <p className="failure">
-                    You uploaded a large file. Processing this file can take up to 7-10 minutes. Please wait.
+                    You uploaded a large file. Processing this file can take up to 10-15 minutes. Please wait.
                 </p>
             )
         }
@@ -329,6 +359,17 @@ class Monitor extends React.Component {
                     </form>
                     <div>
                         {downloadButton}
+                    </div>
+                </div>
+                <h2 className="title">
+                    Delete All Data
+                </h2>
+                <div>
+                    <button className="button" onClick={this.handleDeleteAll}>
+                        Delete All
+                    </button>
+                    <div>
+                        {deleteStatus}
                     </div>
                 </div>
             </div>

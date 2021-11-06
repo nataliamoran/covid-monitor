@@ -21,6 +21,9 @@ class MonitorClient:
     def date_filter_list(self, filters: Dict):
         return self.client.post(reverse('dates-filter_dates'), json.dumps(filters), content_type='application/json')
 
+    def date_delete_all(self):
+        return self.client.delete(reverse('dates-delete_all_dates'))
+
     def date_create(self, csv_path: str):
         fp = open(csv_path)
         return self.client.post(reverse('dates-list'), {'csv_file': fp})
@@ -340,3 +343,17 @@ class TestMonitor(TestCase):
         res = self.cli.date_filter_list(filter_data)
         # assert
         self.assertEquals(400, res.status_code)
+
+    def test__delete_all_dates__green(self):
+        # arrange
+        # act
+        dates_before_addition = self.cli.date_list()
+        self.cli.date_create(TIME_SERIES_CONFIRMED_GLOBAL_PATH)
+        dates_after_addition = self.cli.date_list()
+        res = self.cli.date_delete_all()
+        dates_after_deletion = self.cli.date_list()
+        # assert
+        self.assertEquals(200, res.status_code)
+        self.assertEquals(0, len(dates_before_addition.data))
+        self.assertEquals(1944, len(dates_after_addition.data))
+        self.assertEquals(0, len(dates_after_deletion.data))

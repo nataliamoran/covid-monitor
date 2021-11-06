@@ -74,7 +74,7 @@ class DateView(viewsets.ModelViewSet):
         file_type = verifier.confirm_valid_csv(file_name, covid_monitor_df)
         if file_type == -1:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        if len(covid_monitor_df) < 15:
+        if len(covid_monitor_df) < 10:
             if file_type == 1 or file_type == 2:
                 SeriesWriter(covid_monitor_df, file_type, verifier.time_series_type(file_name))
                 return Response(status=status.HTTP_201_CREATED)
@@ -116,3 +116,9 @@ class DateView(viewsets.ModelViewSet):
             data_csv = data_df.to_csv(index=False)
             return Response(data_csv)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['delete'], url_name='delete_all_dates')
+    def delete_all_dates(self, request):
+        queryset = CovidMonitorDate.objects.all()
+        queryset.delete()
+        return Response(status=status.HTTP_200_OK)
