@@ -86,16 +86,19 @@ class Monitor extends React.Component {
                     csv_upload_status: "success",
                 });
                 this.forceUpdate();
+                setTimeout(function () {
+                    this.setState({csv_upload_status: null,})
+                }.bind(this), 10000)
             })
             .catch((error) => {
                 this.setState({
                     csv_upload_status: "failure",
                 });
                 this.forceUpdate();
+                setTimeout(function () {
+                    this.setState({csv_upload_status: null,})
+                }.bind(this), 10000)
             });
-        setTimeout(function () {
-            this.setState({csv_upload_status: null,})
-        }.bind(this), 10000)
     };
 
     updateTitles(event) {
