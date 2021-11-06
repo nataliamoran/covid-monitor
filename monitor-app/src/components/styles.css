@@ -1,0 +1,58 @@
+.app {
+    margin-left: 20px;
+}
+
+.label {
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+.label_description {
+    margin-right: 10px;
+}
+
+.button {
+    margin-left: 10px !important;
+    margin-right: 10px !important;
+    margin-top: 30px !important;
+    color: #1C70A4;
+    line-height: 0.5;
+    background-color: #f1f1f1;
+    padding: 13px 15px;
+    text-align: center;
+    outline: none;
+    border: none;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 4px 2px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+
+.title {
+    color: #1C70A4;
+}
+
+.text_input {
+    width: 300px;
+}
+
+.success {
+    font-weight: bold;
+    font-size: 20px;
+    color: green;
+}
+
+.in_process {
+    font-weight: bold;
+    font-size: 20px;
+    color: #0D42F7;
+}
+
+.failure {
+    font-weight: bold;
+    font-size: 20px;
+    color: red;
+}
