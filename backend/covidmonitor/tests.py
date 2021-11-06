@@ -9,7 +9,9 @@ DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 TIME_SERIES_CONFIRMED_GLOBAL_PATH = f'{DIR_PATH}/test_files/time_series_covid19_confirmed_global.csv'
 TIME_SERIES_CONFIRMED_US_PATH = f'{DIR_PATH}/test_files/time_series_covid19_confirmed_US.csv'
 DAILY_REPORT_PATH = f'{DIR_PATH}/test_files/01-01-2021.csv'
-
+BAD_DAILY_REPORT_PATH = f'{DIR_PATH}/test_files/bad_daily_file.csv'
+BAD_TIME_SERIES_CONFIRMED_GLOBAL_PATH = f'{DIR_PATH}/test_files/bad_time_series_covid19_confirmed_global.csv'
+BAD_TIME_SERIES_NOTHING_US_PATH = f'{DIR_PATH}/test_files/bad_time_series_covid19_nothing_US.csv'
 
 class MonitorClient:
     def __init__(self):
@@ -36,6 +38,39 @@ class TestMonitor(TestCase):
         super().setUpClass()
         cls.cli = MonitorClient()
 
+    def test__bad_upload_daily_global__green(self):
+        # arrange
+        # act
+        dates_before = self.cli.date_list()
+        res = self.cli.date_create(BAD_DAILY_REPORT_PATH)
+        dates_after = self.cli.date_list()
+        # assert
+        self.assertEquals(400, res.status_code)
+        self.assertEquals(0, len(dates_before.data))
+        self.assertEquals(0, len(dates_after.data))
+
+    def test__bad_upload_series_global__green(self):
+        # arrange
+        # act
+        dates_before = self.cli.date_list()
+        res = self.cli.date_create(BAD_TIME_SERIES_CONFIRMED_GLOBAL_PATH)
+        dates_after = self.cli.date_list()
+        # assert
+        self.assertEquals(400, res.status_code)
+        self.assertEquals(0, len(dates_before.data))
+        self.assertEquals(0, len(dates_after.data))
+
+    def test__bad_upload_series_US__green(self):
+        # arrange
+        # act
+        dates_before = self.cli.date_list()
+        res = self.cli.date_create(BAD_TIME_SERIES_NOTHING_US_PATH)
+        dates_after = self.cli.date_list()
+        # assert
+        self.assertEquals(400, res.status_code)
+        self.assertEquals(0, len(dates_before.data))
+        self.assertEquals(0, len(dates_after.data))
+
     def test__upload_time_series_global__green(self):
         # arrange
         # act
@@ -46,6 +81,17 @@ class TestMonitor(TestCase):
         self.assertEquals(201, res.status_code)
         self.assertEquals(0, len(dates_before.data))
         self.assertEquals(1944, len(dates_after.data))
+
+    def test__upload_daily_global__green(self):
+        # arrange
+        # act
+        dates_before = self.cli.date_list()
+        res = self.cli.date_create(DAILY_REPORT_PATH)
+        dates_after = self.cli.date_list()
+        # assert
+        self.assertEquals(201, res.status_code)
+        self.assertEquals(0, len(dates_before.data))
+        self.assertEquals(16, len(dates_after.data))
 
     def test__content_time_series_global__green(self):
         # arrange
@@ -59,6 +105,19 @@ class TestMonitor(TestCase):
         self.assertEquals("Afghanistan", dates_after.data[0]['country'])
         self.assertEquals('nan', dates_after.data[0]['province_state'])
         self.assertEquals(None, dates_after.data[0]['combined_key'])
+
+    def test__content_daily__green(self):
+        # arrange
+        # act
+        self.cli.date_create(DAILY_REPORT_PATH)
+        dates_after = self.cli.date_list()
+        # assert
+        self.assertEquals(52513, dates_after.data[0]['number'])
+        self.assertEquals("confirmed", dates_after.data[0]['title'])
+        self.assertEquals('2021-01-01', dates_after.data[0]['date'])
+        self.assertEquals("Afghanistan", dates_after.data[0]['country'])
+        self.assertEquals('nan', dates_after.data[0]['province_state'])
+        self.assertEquals("Afghanistan", dates_after.data[0]['combined_key'])
 
     def test__filter_countries__green(self):
         # arrange
@@ -167,12 +226,16 @@ class TestMonitor(TestCase):
         expected_res = "id,title,date,country,province_state,combined_key,number,created_at,updated_at\n" \
                        "1,confirmed,2021-01-01,Afghanistan,nan,Afghanistan,52513," \
                        "2021-11-05T14:55:24.192416-04:00,2021-11-05T14:55:24.192488-04:00\n"
+
         self.cli.date_create(DAILY_REPORT_PATH)
         # act
         res = self.cli.date_filter_list(filter_data)
+        expected_res_replace = expected_res.replace('\n', ' ').replace('\r', '')
+        res_replace = res.data.replace('\n', ' ').replace('\r', '')
         # assert
         self.assertEquals(200, res.status_code)
-        self.assertEquals(expected_res.split(',')[:-2], res.data.split(',')[:-2])
+        self.assertEquals(expected_res_replace.split(',')[:-2], res_replace.split(',')[:-2])
+
 
     def test__bad_format_request__date_from_1__return_400(self):
         # arrange
