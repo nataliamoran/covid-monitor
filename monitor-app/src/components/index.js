@@ -99,15 +99,15 @@ class Monitor extends React.Component {
     };
 
     updateTitles(event) {
-        this.setState({titles: event.target.value.split(',')});
+        this.setState({titles: event.target.value});
     }
 
     updateCountries(event) {
-        this.setState({countries: event.target.value.split(',')});
+        this.setState({countries: event.target.value});
     }
 
     updateProvinces(event) {
-        this.setState({provinces_states: event.target.value.split(',')});
+        this.setState({provinces_states: event.target.value});
     }
 
     updateCombinedKeys(event) {
@@ -127,14 +127,26 @@ class Monitor extends React.Component {
     }
 
     handleSubmit(event) {
-        const request = {
+        let request = {
             "titles": this.state.titles,
             "countries": this.state.countries,
             "provinces_states": this.state.provinces_states,
-            "combined_keys": this.state.combined_keys.split('&'),
+            "combined_keys": this.state.combined_keys,
             "date_from": this.state.date_from,
             "date_to": this.state.date_to,
             "format": this.state.format ? this.state.format : "JSON",
+        };
+        if (typeof request["titles"] === 'string') {
+            request["titles"] = request["titles"].split("&");
+        }
+        if (typeof request["countries"] === 'string') {
+            request["countries"] = request["countries"].split("&");
+        }
+        if (typeof request["provinces_states"] === 'string') {
+            request["provinces_states"] = request["provinces_states"].split("&");
+        }
+        if (typeof request["combined_keys"] === 'string') {
+            request["combined_keys"] = request["combined_keys"].split("&");
         }
         const requestDates = {
             method: 'POST',
@@ -229,7 +241,7 @@ class Monitor extends React.Component {
                                 <input type="text"
                                        className="text_input"
                                        value={this.state.titles}
-                                       placeholder={"deaths,confirmed,active,recovered"}
+                                       placeholder={"deaths&confirmed&active&recovered"}
                                        onChange={this.updateTitles}/>
                             </label>
                         </div>
@@ -239,7 +251,7 @@ class Monitor extends React.Component {
                                 <input type="text"
                                        className="text_input"
                                        value={this.state.countries}
-                                       placeholder={"Algeria,US"}
+                                       placeholder={"Algeria&US"}
                                        onChange={this.updateCountries}/>
                             </label>
                         </div>
@@ -249,7 +261,7 @@ class Monitor extends React.Component {
                                 <input type="text"
                                        className="text_input"
                                        value={this.state.provinces_states}
-                                       placeholder={"Alabama,California"}
+                                       placeholder={"Alabama&California"}
                                        onChange={this.updateProvinces}/>
                             </label>
                         </div>
