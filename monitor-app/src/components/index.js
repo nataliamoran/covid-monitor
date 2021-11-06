@@ -99,19 +99,19 @@ class Monitor extends React.Component {
     };
 
     updateTitles(event) {
-        this.setState({titles: event.target.value.split('&')});
+        this.setState({titles: event.target.value.split(',')});
     }
 
     updateCountries(event) {
-        this.setState({countries: event.target.value.split('&')});
+        this.setState({countries: event.target.value.split(',')});
     }
 
     updateProvinces(event) {
-        this.setState({provinces_states: event.target.value.split('&')});
+        this.setState({provinces_states: event.target.value.split(',')});
     }
 
     updateCombinedKeys(event) {
-        this.setState({combined_keys: event.target.value.split('&')});
+        this.setState({combined_keys: event.target.value});
     }
 
     updateDateFrom(event) {
@@ -131,7 +131,7 @@ class Monitor extends React.Component {
             "titles": this.state.titles,
             "countries": this.state.countries,
             "provinces_states": this.state.provinces_states,
-            "combined_keys": this.state.combined_keys,
+            "combined_keys": this.state.combined_keys.split('&'),
             "date_from": this.state.date_from,
             "date_to": this.state.date_to,
             "format": this.state.format ? this.state.format : "JSON",
@@ -229,7 +229,7 @@ class Monitor extends React.Component {
                                 <input type="text"
                                        className="text_input"
                                        value={this.state.titles}
-                                       placeholder={"deaths&confirmed&active&recovered"}
+                                       placeholder={"deaths,confirmed,active,recovered"}
                                        onChange={this.updateTitles}/>
                             </label>
                         </div>
@@ -239,7 +239,7 @@ class Monitor extends React.Component {
                                 <input type="text"
                                        className="text_input"
                                        value={this.state.countries}
-                                       placeholder={"Algeria&US"}
+                                       placeholder={"Algeria,US"}
                                        onChange={this.updateCountries}/>
                             </label>
                         </div>
@@ -249,7 +249,7 @@ class Monitor extends React.Component {
                                 <input type="text"
                                        className="text_input"
                                        value={this.state.provinces_states}
-                                       placeholder={"Alabama&California"}
+                                       placeholder={"Alabama,California"}
                                        onChange={this.updateProvinces}/>
                             </label>
                         </div>
