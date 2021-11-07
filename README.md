@@ -27,6 +27,65 @@ To manually test the API directly please use Postman - please see instructions b
 
 # REST API Documentation
 
+* **Upload CSV File**
+    - Request Method: POST
+    - Request URL: `http://ec2-54-202-56-60.us-west-2.compute.amazonaws.com/api/dates/`
+    - Body: 
+        * Key: `csv_file` 
+        * Value: Upload CSV file
+    - Response Status: 
+        * Success: 201
+        * Failure - Bad Request: 400
+
+* **Filter and retrieve dates**
+    - Request Method: POST
+    - Request URL: `http://ec2-54-202-56-60.us-west-2.compute.amazonaws.com/api/dates/filter_dates/`
+    - Request JSON format example:
+        ```
+        {
+            "titles": ["active", "confirmed"],
+            "countries": ["Algeria", "US", "Canada"],
+            "provinces_states": [],
+            "combined_keys": [],
+            "date_from": "01/01/21",
+            "date_to": "01/03/21",
+            "format": "JSON"
+        }
+        ```
+    - Response Status: 
+        * Success: 200
+        * Failure - Bad Request: 400
+        
+* **Retrieve All Dates (without filter)**
+    - Request Method: GET
+    - Request URL: `http://ec2-54-202-56-60.us-west-2.compute.amazonaws.com/api/dates/`
+    - No body
+    - Response Status: 
+        * Success: 200
+
+* **Retrieve One Date (by ID)**
+    - Request Method: GET
+    - Request URL: `http://ec2-54-202-56-60.us-west-2.compute.amazonaws.com/api/dates/{ID}/`
+    - No body
+    - Response Status: 
+        * Success: 200
+        * Failure - Not Found: 404
+        
+* **Delete All Dates**
+    - Request Method: DELETE
+    - Request URL: `http://ec2-54-202-56-60.us-west-2.compute.amazonaws.com/api/dates/delete_all_dates/`
+    - No body
+    - Response Status: 
+        * Success: 200
+        
+* **Delete One Date (by ID)**
+    - Request Method: DELETE
+    - Request URL: `http://ec2-54-202-56-60.us-west-2.compute.amazonaws.com/api/dates/{ID}/`
+    - No body
+    - Response Status: 
+        * Success: 204
+        * Failure - Not Found: 404
+
 # Pair Programming 
 ### Procedure
 To kickstart our workflow we decided to start the assignment using pair programming over Zoom. In our first session on Monday (01/11/21) we first scanned the project requirements and discussed ideas. We continued to setup
