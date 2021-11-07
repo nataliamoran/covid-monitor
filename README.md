@@ -1,4 +1,19 @@
-Covid Monitor: http://ec2-54-202-56-60.us-west-2.compute.amazonaws.com/
+# Covid Monitor Additional Features
+
+* Frontend: http://ec2-54-202-56-60.us-west-2.compute.amazonaws.com/
+* Additional API functionality:
+    * GET all dates
+    * DELETE all dates
+    * DELETE one date (by ID)
+
+# Guidelines for Manual Testing
+The Covid Monitor can be manually tested either with Postman or with the frontend: http://ec2-54-202-56-60.us-west-2.compute.amazonaws.com/
+
+## Guidelines for Manual Testing with Postman
+
+## Guidelines for Manual Testing with Frontend
+
+# REST API Documentation
 
 # Pair Programming 
 ### Procedure
@@ -40,3 +55,33 @@ was lost when the navigator had to wait until this was resolved.
 
 All in all, our team felt that pair programing was a positive experience and helped us save time. This could have been even more evident if logistic challenges could have been avoided.  
 
+# Tests
+88% Coverage. Please see the results of running tests with coverage in [GitHub Actions logs](https://github.com/csc301-fall-2021/assignment-2-1-robingerster-nataliamoran/runs/4131366172?check_suite_focus=true#step:7:210).
+* Tests GitHub path: https://github.com/csc301-fall-2021/assignment-2-1-robingerster-nataliamoran/blob/main/backend/covidmonitor/tests.py
+* Tests tech stack: [Django Unit Test framework](https://docs.djangoproject.com/en/3.2/topics/testing/tools/)
+* Unit test name convention: MethodName_StateUnderTest_ExpectedBehavior
+* Unit test structure:
+    * arrange
+    * act
+    * assert
+    
+# Program Design
+* `create` API ([GitHub Path](https://github.com/csc301-fall-2021/assignment-2-1-robingerster-nataliamoran/blob/main/backend/covidmonitor/views.py#L66))
+    * Method: POST
+
+`create` API uses `request.FILES` to receive a CSV file. We made this design decision based on the potential usage of the Covid Monitor app:
+the premier user of this app is a TA who will be testing our assignment. We wanted to make the API user-friendly and assumed that it is 
+easier and faster to upload a CSV file (with Postman or frontend) rather than to copy contents of a CSV file into the request body (e.g. `request.data`).
+
+Under different circumstances we might have had chosen to use `request.data`: 
+if we were building an API interface for other APIs to communicate with, using `request.data` would have more sense
+because then we could assume that the CSV content is already extracted from the CSV file by other entities (e.g. other APIs) and
+the interaction with a human would not need to be taken into consideration.     
+
+* `filter_dates` API ([GitHub Path](https://github.com/csc301-fall-2021/assignment-2-1-robingerster-nataliamoran/blob/main/backend/covidmonitor/views.py#L84))
+    * Method: POST
+    
+`filter_dates` API receives a JSON and returns a JSON or a CSV, depending on the request. 
+To not make the API interface unnecessary complicated, we decided to create one API call for both returning 
+a JSON or a CSV instead of separating this call into two calls with different response format. 
+If the Covid Monitor app would ever grow or be used by other applications, this design would have to be re-thought.
