@@ -97,9 +97,10 @@ class DateView(viewsets.ModelViewSet):
             data_df = pd.DataFrame(queryset.values_list(
                 'id', 'title', 'date', 'country', 'province_state', "combined_key", "internal_combined_key",
                 'number', 'created_at', 'updated_at'))
-            data_df.columns = ['id', 'title', 'date', 'country', 'province_state', "combined_key",
-                               "internal_combined_key",
-                               'number', 'created_at', 'updated_at']
+            if len(data_df) > 0:
+                data_df.columns = ['id', 'title', 'date', 'country', 'province_state', "combined_key",
+                                   "internal_combined_key",
+                                   'number', 'created_at', 'updated_at']
             data_csv = data_df.to_csv(index=False)
             return Response(data_csv)
         elif request.data["format"] == "JSON":  # return JSON
