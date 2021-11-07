@@ -93,15 +93,21 @@ class DateView(viewsets.ModelViewSet):
         queryset = filter_dates(request)
         if queryset is None:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        page = self.paginate_queryset(queryset)
-        serializer = self.get_serializer(page, many=True) if page is not None \
-            else self.get_serializer(queryset, many=True)
-        if request.data["format"] == "JSON":  # return JSON
-            return Response(serializer.data) if page is None else self.get_paginated_response(serializer.data)
-        elif request.data["format"] == "CSV":  # return CSV
-            data_df = pd.DataFrame(serializer.data)
+        if request.data["format"] == "CSV":  # return CSV
+            data_df = pd.DataFrame(queryset.values_list(
+                'id', 'title', 'date', 'country', 'province_state', "combined_key", "internal_combined_key",
+                'number', 'created_at', 'updated_at'))
+            data_df.columns = ['id', 'title', 'date', 'country', 'province_state', "combined_key",
+                               "internal_combined_key",
+                               'number', 'created_at', 'updated_at']
             data_csv = data_df.to_csv(index=False)
             return Response(data_csv)
+        elif request.data["format"] == "JSON":  # return JSON
+            page = self.paginate_queryset(queryset)
+            serializer = (self.get_serializer(page, many=True)
+                          if page is not None
+                          else self.get_serializer(queryset, many=True))
+            return Response(serializer.data) if page is None else self.get_paginated_response(serializer.data)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['delete'], url_name='delete_all_dates')
