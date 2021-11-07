@@ -19,7 +19,7 @@ only when needing help or when in a scenario as described previously.
 
 ![alt text](https://github.com/csc301-fall-2021/assignment-2-1-robingerster-nataliamoran/blob/main/commit_activity.png?raw=true)
 
-###Reflection
+### Reflection
 Some of the pros of pair programming include:
 * By starting the assignment using a pair programming setup we easily established a common ground. That means, both team members were aware of the basic structures underlying the project (such as the models) before branching
 off to start working individually. Clearly, this was extremely useful as no partner felt as though they were working with black box algorithms.
