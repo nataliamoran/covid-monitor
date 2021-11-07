@@ -53,7 +53,6 @@ class SeriesWriter(Writer):
 
             dates_count = len(dates)
             logger.debug(f'Beginning processing {dates_count} records from index {index}/{len(df)}')
-
             for date in dates:
                 try:
                     val = int(row[date])
@@ -69,6 +68,13 @@ class SeriesWriter(Writer):
                     internal_combined_key_list.append(internal_combined_key)
                 except ValueError:
                     continue
+            if index % 100 == 0:
+                logger.debug(f'Writing data for rows up to index {index}')
+                self.write_date(items, internal_combined_key_list)
+                del items
+                del internal_combined_key_list
+                items = []
+                internal_combined_key_list = []
         self.write_date(items, internal_combined_key_list)
 
 
@@ -102,4 +108,11 @@ class DailyWriter(Writer):
                     items.append(date_data)
                 except ValueError:
                     continue
+            if index % 100 == 0:
+                logger.debug(f'Writing data for rows up to index {index}')
+                self.write_date(items, internal_combined_key_list)
+                del items
+                del internal_combined_key_list
+                items = []
+                internal_combined_key_list = []
         self.write_date(items, internal_combined_key_list)
