@@ -223,8 +223,10 @@ class TestMonitor(TestCase):
             "date_to": "01/01/21",
             "format": "CSV"
         }
-        expected_res = "id,title,date,country,province_state,combined_key,number,created_at,updated_at\n" \
-                       "1,confirmed,2021-01-01,Afghanistan,nan,Afghanistan,52513," \
+        expected_res = "id,title,date,country,province_state,combined_key,internal_combined_key," \
+                       "number,created_at,updated_at\n" \
+                       "1,confirmed,2021-01-01,Afghanistan,nan,Afghanistan," \
+                       "confirmed&2021-01-01&Afghanistan&nan&nan,52513," \
                        "2021-11-05T14:55:24.192416-04:00,2021-11-05T14:55:24.192488-04:00\n"
 
         self.cli.date_create(DAILY_REPORT_PATH)

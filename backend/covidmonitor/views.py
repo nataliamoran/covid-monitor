@@ -6,7 +6,7 @@ import datetime
 import os
 import pandas as pd
 from .csv_verfier import Verifier
-from .writers import SeriesWriter, DailyWriter
+from . import writers
 from rest_framework.decorators import action
 
 
@@ -21,12 +21,12 @@ def is_well_formatted_filter_request(request):
     Verify that the request to filter dates is well-formatted.
     """
     return isinstance(request.data["titles"], list) and \
-                 isinstance(request.data["countries"], list) and \
-                 isinstance(request.data["provinces_states"], list) and \
-                 isinstance(request.data["combined_keys"], list) and \
-                 isinstance(request.data["date_from"], str) and \
-                 isinstance(request.data["date_to"], str) and \
-                 isinstance(request.data["format"], str)
+           isinstance(request.data["countries"], list) and \
+           isinstance(request.data["provinces_states"], list) and \
+           isinstance(request.data["combined_keys"], list) and \
+           isinstance(request.data["date_from"], str) and \
+           isinstance(request.data["date_to"], str) and \
+           isinstance(request.data["format"], str)
 
 
 def filter_dates(request):
@@ -74,25 +74,12 @@ class DateView(viewsets.ModelViewSet):
         file_type = verifier.confirm_valid_csv(file_name, covid_monitor_df)
         if file_type == -1:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        if len(covid_monitor_df) < 10:
-            if file_type == 1 or file_type == 2:
-                SeriesWriter(covid_monitor_df, file_type, verifier.time_series_type(file_name))
-                return Response(status=status.HTTP_201_CREATED)
-            DailyWriter(covid_monitor_df, file_type, datetime.datetime.strptime(file_name.split(".")[0], "%m-%d-%Y").date())
+        if file_type == 1 or file_type == 2:
+            writers.SeriesWriter(covid_monitor_df, file_type, verifier.time_series_type(file_name))
             return Response(status=status.HTTP_201_CREATED)
-        else:
-            pid = os.fork()
-            if file_type == 1 or file_type == 2:
-                if pid == 0:
-                    SeriesWriter(covid_monitor_df, file_type, verifier.time_series_type(file_name))
-                    return Response(status=status.HTTP_201_CREATED)
-                else:
-                    return Response(status=status.HTTP_202_ACCEPTED)
-            if pid == 0:
-                DailyWriter(covid_monitor_df, file_type, datetime.datetime.strptime(file_name.split(".")[0], "%m-%d-%Y").date())
-                return Response(status=status.HTTP_201_CREATED)
-            else:
-                return Response(status=status.HTTP_202_ACCEPTED)
+        writers.DailyWriter(covid_monitor_df, file_type,
+                            datetime.datetime.strptime(file_name.split(".")[0], "%m-%d-%Y").date())
+        return Response(status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=['post'], url_name='filter_dates')
     def filter_dates(self, request):
