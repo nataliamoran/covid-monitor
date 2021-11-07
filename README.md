@@ -14,4 +14,5 @@ For instance, once one of us finished the basic unit testing functionality we ha
 this scenario would write one or two tests while being guided by the supervisor. 
 
 
-![alt text](https://github.com/csc301-fall-2021/assignment-2-1-robingerster-nataliamoran/blob/main/commit_activiy.png?raw=true)
+![alt text](https://github.com/csc301-fall-2021/assignment-2-1-robingerster-nataliamoran/blob/main/commit_activity.png?raw=true)
+
