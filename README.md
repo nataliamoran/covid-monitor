@@ -1,4 +1,8 @@
-# Covid Monitor Additional Features
+# COVID-19 Monitor Video Presentation
+Frontend (desktop): https://youtu.be/82D2FRRec7g
+
+
+# COVID-19 Monitor Additional Features
 
 * Frontend: http://ec2-54-202-56-60.us-west-2.compute.amazonaws.com/
 * Additional API functionality:
@@ -7,11 +11,15 @@
     * DELETE one date (by ID)
 
 # Guidelines for Manual Testing
-The Covid Monitor can be manually tested either with Postman or with the frontend: http://ec2-54-202-56-60.us-west-2.compute.amazonaws.com/
+COVID-19 Monitor app can be manually tested either with Postman or with the frontend: http://ec2-54-202-56-60.us-west-2.compute.amazonaws.com/
+
+To learn more about testing the app with the frontend (desktop only) please watch the [frontend presentation](https://youtu.be/82D2FRRec7g) (sound on!).
+The frontend is communicating with the backend and database via the API.
+
+To manually test the API directly please use Postman - please see instructions below.
 
 ## Guidelines for Manual Testing with Postman
 
-## Guidelines for Manual Testing with Frontend
 
 # REST API Documentation
 
