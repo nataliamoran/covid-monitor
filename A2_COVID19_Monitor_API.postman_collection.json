@@ -1,0 +1,196 @@
+{
+	"info": {
+		"_postman_id": "bde5a770-f29a-4659-946a-d23ddce6475c",
+		"name": "A2 COVID-19 Monitor API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "POST CSV File",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "csv_file",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "http://ec2-54-202-56-60.us-west-2.compute.amazonaws.com/api/dates/",
+					"protocol": "http",
+					"host": [
+						"ec2-54-202-56-60",
+						"us-west-2",
+						"compute",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"api",
+						"dates",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST Filter Dates",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"titles\": [\"active\", \"confirmed\"],\n    \"countries\": [\"Algeria\", \"US\", \"Canada\"],\n    \"provinces_states\": [],\n    \"combined_keys\": [],\n    \"date_from\": \"01/01/21\",\n    \"date_to\": \"01/03/21\",\n    \"format\": \"CSV\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://ec2-54-202-56-60.us-west-2.compute.amazonaws.com/api/dates/filter_dates/",
+					"protocol": "http",
+					"host": [
+						"ec2-54-202-56-60",
+						"us-west-2",
+						"compute",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"api",
+						"dates",
+						"filter_dates",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET All Dates",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://ec2-54-202-56-60.us-west-2.compute.amazonaws.com/api/dates/",
+					"protocol": "http",
+					"host": [
+						"ec2-54-202-56-60",
+						"us-west-2",
+						"compute",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"api",
+						"dates",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET One Date (by ID)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://ec2-54-202-56-60.us-west-2.compute.amazonaws.com/api/dates/{ID}/",
+					"protocol": "http",
+					"host": [
+						"ec2-54-202-56-60",
+						"us-west-2",
+						"compute",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"api",
+						"dates",
+						"{ID}",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE All Dates",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "csv_file",
+							"type": "file",
+							"src": "/Users/nataliagerashchenko/Desktop/CSC301-Fall2021/assignment-2-1-robingerster-nataliamoran/backend/covidmonitor/test_files/time_series_covid19_confirmed_US.csv"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://ec2-54-202-56-60.us-west-2.compute.amazonaws.com/api/dates/delete_all_dates/",
+					"protocol": "http",
+					"host": [
+						"ec2-54-202-56-60",
+						"us-west-2",
+						"compute",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"api",
+						"dates",
+						"delete_all_dates",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE One Date (by ID)",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "csv_file",
+							"type": "file",
+							"src": "/Users/nataliagerashchenko/Desktop/CSC301-Fall2021/assignment-2-1-robingerster-nataliamoran/backend/covidmonitor/test_files/time_series_covid19_confirmed_US.csv"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://ec2-54-202-56-60.us-west-2.compute.amazonaws.com/api/dates/{ID}/",
+					"protocol": "http",
+					"host": [
+						"ec2-54-202-56-60",
+						"us-west-2",
+						"compute",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"api",
+						"dates",
+						"{ID}",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -1,25 +1,29 @@
 # COVID-19 Monitor Video Presentation
-Frontend (desktop): https://youtu.be/82D2FRRec7g
-
+* Frontend (desktop) video presentation: https://youtu.be/82D2FRRec7g
+* REST API (with Postman) video presentation: https://youtu.be/iqx924Rw4tM
 
 # COVID-19 Monitor Additional Features
 
 * Frontend: http://ec2-54-202-56-60.us-west-2.compute.amazonaws.com/
 * Additional API functionality:
     * GET all dates
+    * GET one date (by ID)
     * DELETE all dates
     * DELETE one date (by ID)
 
 # Guidelines for Manual Testing
-COVID-19 Monitor app can be manually tested either with Postman or with the frontend: http://ec2-54-202-56-60.us-west-2.compute.amazonaws.com/
+COVID-19 Monitor app can be manually tested either with [Postman](https://www.postman.com/) or with the frontend: http://ec2-54-202-56-60.us-west-2.compute.amazonaws.com/
 
-To learn more about testing the app with the frontend (desktop only) please watch the [frontend presentation](https://youtu.be/82D2FRRec7g) (sound on!).
+To learn more about testing the app with the frontend (desktop only) please watch the [frontend video presentation](https://youtu.be/82D2FRRec7g) (sound on!).
 The frontend is communicating with the backend and database via the API.
 
 To manually test the API directly please use Postman - please see instructions below.
 
 ## Guidelines for Manual Testing with Postman
-
+1. Download the Postman collection `A2_COVID19_Monitor_API.postman_collection.json` from A2 top directory.
+2. Install [Postman](https://www.postman.com/).
+3. Import COVID-19 Monitor API collection into Postman (`File` >> `Import` >> Upload `A2_COVID19_Monitor_API.postman_collection.json`)
+4. Please watch the [video presentation](https://youtu.be/iqx924Rw4tM) (sound on!) to see how each of the API calls works.
 
 # REST API Documentation
 
