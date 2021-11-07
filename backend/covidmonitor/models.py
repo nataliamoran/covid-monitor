@@ -1,4 +1,3 @@
-from bulk_update_or_create import BulkUpdateOrCreateQuerySet
 from django.db import models
 
 
@@ -14,7 +13,6 @@ class CovidMonitorDate(models.Model):
     internal_combined_key = models.CharField(max_length=1000)
 
     class Meta:
-        # unique_together = (("title", "date", "country", "province_state", "combined_key",),)
         indexes = [
             models.Index(fields=['internal_combined_key', ]),
         ]
