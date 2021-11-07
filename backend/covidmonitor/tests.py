@@ -46,8 +46,8 @@ class TestMonitor(TestCase):
         dates_after = self.cli.date_list()
         # assert
         self.assertEquals(400, res.status_code)
-        self.assertEquals(0, len(dates_before.data))
-        self.assertEquals(0, len(dates_after.data))
+        self.assertEquals(0, len(dates_before.data['results']))
+        self.assertEquals(0, len(dates_after.data['results']))
 
     def test__bad_upload_series_global__green(self):
         # arrange
@@ -57,8 +57,8 @@ class TestMonitor(TestCase):
         dates_after = self.cli.date_list()
         # assert
         self.assertEquals(400, res.status_code)
-        self.assertEquals(0, len(dates_before.data))
-        self.assertEquals(0, len(dates_after.data))
+        self.assertEquals(0, len(dates_before.data['results']))
+        self.assertEquals(0, len(dates_after.data['results']))
 
     def test__bad_upload_series_US__green(self):
         # arrange
@@ -68,8 +68,8 @@ class TestMonitor(TestCase):
         dates_after = self.cli.date_list()
         # assert
         self.assertEquals(400, res.status_code)
-        self.assertEquals(0, len(dates_before.data))
-        self.assertEquals(0, len(dates_after.data))
+        self.assertEquals(0, len(dates_before.data['results']))
+        self.assertEquals(0, len(dates_after.data['results']))
 
     def test__upload_time_series_global__green(self):
         # arrange
@@ -79,8 +79,8 @@ class TestMonitor(TestCase):
         dates_after = self.cli.date_list()
         # assert
         self.assertEquals(201, res.status_code)
-        self.assertEquals(0, len(dates_before.data))
-        self.assertEquals(1944, len(dates_after.data))
+        self.assertEquals(0, len(dates_before.data['results']))
+        self.assertEquals(1944, dates_after.data['count'])
 
     def test__upload_daily_global__green(self):
         # arrange
@@ -90,8 +90,8 @@ class TestMonitor(TestCase):
         dates_after = self.cli.date_list()
         # assert
         self.assertEquals(201, res.status_code)
-        self.assertEquals(0, len(dates_before.data))
-        self.assertEquals(16, len(dates_after.data))
+        self.assertEquals(0, len(dates_before.data['results']))
+        self.assertEquals(16, len(dates_after.data['results']))
 
     def test__content_time_series_global__green(self):
         # arrange
@@ -99,12 +99,12 @@ class TestMonitor(TestCase):
         self.cli.date_create(TIME_SERIES_CONFIRMED_GLOBAL_PATH)
         dates_after = self.cli.date_list()
         # assert
-        self.assertEquals(0, dates_after.data[0]['number'])
-        self.assertEquals("confirmed", dates_after.data[0]['title'])
-        self.assertEquals('2020-01-23', dates_after.data[0]['date'])
-        self.assertEquals("Afghanistan", dates_after.data[0]['country'])
-        self.assertEquals('nan', dates_after.data[0]['province_state'])
-        self.assertEquals(None, dates_after.data[0]['combined_key'])
+        self.assertEquals(0, dates_after.data['results'][0]['number'])
+        self.assertEquals("confirmed", dates_after.data['results'][0]['title'])
+        self.assertEquals('2020-01-23', dates_after.data['results'][0]['date'])
+        self.assertEquals("Afghanistan", dates_after.data['results'][0]['country'])
+        self.assertEquals('nan', dates_after.data['results'][0]['province_state'])
+        self.assertEquals(None, dates_after.data['results'][0]['combined_key'])
 
     def test__content_daily__green(self):
         # arrange
@@ -112,12 +112,12 @@ class TestMonitor(TestCase):
         self.cli.date_create(DAILY_REPORT_PATH)
         dates_after = self.cli.date_list()
         # assert
-        self.assertEquals(52513, dates_after.data[0]['number'])
-        self.assertEquals("confirmed", dates_after.data[0]['title'])
-        self.assertEquals('2021-01-01', dates_after.data[0]['date'])
-        self.assertEquals("Afghanistan", dates_after.data[0]['country'])
-        self.assertEquals('nan', dates_after.data[0]['province_state'])
-        self.assertEquals("Afghanistan", dates_after.data[0]['combined_key'])
+        self.assertEquals(52513, dates_after.data['results'][0]['number'])
+        self.assertEquals("confirmed", dates_after.data['results'][0]['title'])
+        self.assertEquals('2021-01-01', dates_after.data['results'][0]['date'])
+        self.assertEquals("Afghanistan", dates_after.data['results'][0]['country'])
+        self.assertEquals('nan', dates_after.data['results'][0]['province_state'])
+        self.assertEquals("Afghanistan", dates_after.data['results'][0]['combined_key'])
 
     def test__filter_countries__green(self):
         # arrange
@@ -136,7 +136,7 @@ class TestMonitor(TestCase):
         res = self.cli.date_filter_list(filter_data)
         # assert
         self.assertEquals(200, res.status_code)
-        self.assertEquals(12, len(res.data))
+        self.assertEquals(12, len(res.data['results']))
 
     def test__filter_titles__green(self):
         # arrange
@@ -154,7 +154,7 @@ class TestMonitor(TestCase):
         res = self.cli.date_filter_list(filter_data)
         # assert
         self.assertEquals(200, res.status_code)
-        self.assertEquals(8, len(res.data))
+        self.assertEquals(8, len(res.data['results']))
 
     def test__filter_provinces_states__green(self):
         # arrange
@@ -172,7 +172,7 @@ class TestMonitor(TestCase):
         res = self.cli.date_filter_list(filter_data)
         # assert
         self.assertEquals(200, res.status_code)
-        self.assertEquals(6, len(res.data))
+        self.assertEquals(6, len(res.data['results']))
 
     def test__filter_combined_keys__green(self):
         # arrange
@@ -190,7 +190,7 @@ class TestMonitor(TestCase):
         res = self.cli.date_filter_list(filter_data)
         # assert
         self.assertEquals(200, res.status_code)
-        self.assertEquals(6, len(res.data))
+        self.assertEquals(6, len(res.data['results']))
 
     def test__multiple_filters__green(self):
         # arrange
@@ -210,7 +210,7 @@ class TestMonitor(TestCase):
         res = self.cli.date_filter_list(filter_data)
         # assert
         self.assertEquals(200, res.status_code)
-        self.assertEquals(3, len(res.data))
+        self.assertEquals(3, len(res.data['results']))
 
     def test_format__csv__green(self):
         # arrange
@@ -419,6 +419,6 @@ class TestMonitor(TestCase):
         dates_after_deletion = self.cli.date_list()
         # assert
         self.assertEquals(200, res.status_code)
-        self.assertEquals(0, len(dates_before_addition.data))
-        self.assertEquals(1944, len(dates_after_addition.data))
-        self.assertEquals(0, len(dates_after_deletion.data))
+        self.assertEquals(0, len(dates_before_addition.data['results']))
+        self.assertEquals(1944, dates_after_addition.data['count'])
+        self.assertEquals(0, len(dates_after_deletion.data['results']))
