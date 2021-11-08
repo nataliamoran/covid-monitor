@@ -203,15 +203,15 @@ currently, the app is using SQLite3 DB, but it is possible to change the databas
 
 ## Data Storage
 Because the structure of available data is known in advance 
-(e.g. each date has a case title ("active", "confirmed", "deaths", or "recovered"), country, number of cases, etc) 
-To store the data we chose the relational database SQLite3. 
+(e.g. each date has a case title ("active", "confirmed", "deaths", or "recovered"), country, number of cases, etc), 
+to store the data we chose the relational database SQLite3. 
 
 The advantage of SQLite3 is its simplicity: it is easy to install and manage. 
 During the development process whenever the database became corrupted, we simply deleted its current instance and created a new one.
 
-The disadvantage of SQLite3 is that this database does not support parallel access: only one thread can use SQLite3 at a given moment.    
+The disadvantage of SQLite3 is that this database does not support parallel access: only one thread can use SQLite3 at a given moment. 
 Because some CSV files contain thousands and thousands of dates, introducing multithreading for processing a CSV file would speed up 
-COVID-19 Monitor app performance if there was not the SQLite3 bottleneck.
+COVID-19 Monitor app performance, but in this case SQLite3 would become a bottleneck.
 
 ## REST API Design
 
