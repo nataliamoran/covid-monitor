@@ -16,11 +16,14 @@ class Monitor extends React.Component {
             date_from: "",
             date_to: "",
             format: "",
+            json_offset: null,
+            json_limit: null,
             download_button: null,
             csv_file: null,
             filtered_data: null,
             csv_upload_status: null,
             delete_all_status: null,
+            filter_status: null,
         };
 
         this.updateTitles = this.updateTitles.bind(this);
@@ -30,6 +33,8 @@ class Monitor extends React.Component {
         this.updateDateFrom = this.updateDateFrom.bind(this);
         this.updateDateTo = this.updateDateTo.bind(this);
         this.updateFormat = this.updateFormat.bind(this);
+        this.updateJsonLimit = this.updateJsonLimit.bind(this);
+        this.updateJsonOffset = this.updateJsonOffset.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleDeleteAll = this.handleDeleteAll.bind(this);
     }
@@ -142,6 +147,14 @@ class Monitor extends React.Component {
         this.setState({format: event.target.value});
     }
 
+    updateJsonLimit(event) {
+        this.setState({json_limit: event.target.value});
+    }
+
+    updateJsonOffset(event) {
+        this.setState({json_offset: event.target.value});
+    }
+
     handleDeleteAll(event) {
         const data = {
             method: 'DELETE'
@@ -190,7 +203,17 @@ class Monitor extends React.Component {
                 'Content-Type': 'application/json'
             }
         };
-        fetch(FILTER, requestDates)
+
+        let requestUrl;
+        if (request["format"] === "JSON"){
+            requestUrl = FILTER + '?limit=' + this.state.json_limit + '&offset=' + this.state.json_offset;
+        } else {
+            requestUrl = FILTER;
+        }
+
+        this.setState({filter_status: "process",});
+        this.forceUpdate();
+        fetch(requestUrl, requestDates)
             .then((response) => response.json())
             .then((json) => {
                 this.setState({
@@ -202,11 +225,21 @@ class Monitor extends React.Component {
                     combined_keys: [],
                     date_from: "",
                     date_to: "",
+                    json_limit: null,
+                    json_offset: null,
                     format: "",
+                    filter_status: null
                 });
                 this.forceUpdate();
             })
             .catch(() => {
+                this.setState({
+                    filter_status: "failure",
+                });
+                this.forceUpdate();
+                setTimeout(function () {
+                    this.setState({filter_status: null,})
+                }.bind(this), 10000)
             });
         event.preventDefault();
     }
@@ -215,6 +248,22 @@ class Monitor extends React.Component {
         let downloadButton;
         let uploadStatus;
         let deleteStatus;
+        let filterFailedStatus;
+
+        if (this.state.filter_status && this.state.filter_status === "failure") {
+            filterFailedStatus = (
+                <p className="failure">
+                    Your request cannot be processed. Please make sure your input follows the format shown by form field
+                    placeholders.
+                </p>
+            )
+        } else if (this.state.filter_status && this.state.filter_status === "process") {
+            filterFailedStatus = (
+                <p className="in_process">
+                    Your request is being processed - please wait.
+                </p>
+            )
+        }
 
         if (this.state.delete_all_status && this.state.delete_all_status === 1) {
             deleteStatus = (
@@ -244,7 +293,7 @@ class Monitor extends React.Component {
             )
         } else if (this.state.csv_upload_status && this.state.csv_upload_status === "large-file") {
             uploadStatus = (
-                <p className="failure">
+                <p className="in_process">
                     You uploaded a large file. Processing this file can take up to 10-15 minutes. Please wait.
                 </p>
             )
@@ -355,8 +404,31 @@ class Monitor extends React.Component {
                                        onChange={this.updateFormat}/>
                             </label>
                         </div>
+                        <div className="label">
+                            <label>
+                                <span className="label_description"> JSON Limit: </span>
+                                <input type="text"
+                                       className="text_input"
+                                       value={this.state.json_limit}
+                                       placeholder={"100"}
+                                       onChange={this.updateJsonLimit}/>
+                            </label>
+                        </div>
+                        <div className="label">
+                            <label>
+                                <span className="label_description"> JSON Offset: </span>
+                                <input type="text"
+                                       className="text_input"
+                                       value={this.state.json_offset}
+                                       placeholder={"0"}
+                                       onChange={this.updateJsonOffset}/>
+                            </label>
+                        </div>
                         <input className="button" type="submit" value="Submit"/>
                     </form>
+                    <div>
+                        {filterFailedStatus}
+                    </div>
                     <div>
                         {downloadButton}
                     </div>

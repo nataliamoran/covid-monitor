@@ -13,6 +13,7 @@ BAD_DAILY_REPORT_PATH = f'{DIR_PATH}/test_files/bad_daily_file.csv'
 BAD_TIME_SERIES_CONFIRMED_GLOBAL_PATH = f'{DIR_PATH}/test_files/bad_time_series_covid19_confirmed_global.csv'
 BAD_TIME_SERIES_NOTHING_US_PATH = f'{DIR_PATH}/test_files/bad_time_series_covid19_nothing_US.csv'
 
+
 class MonitorClient:
     def __init__(self):
         self.client = Client()
@@ -38,7 +39,7 @@ class TestMonitor(TestCase):
         super().setUpClass()
         cls.cli = MonitorClient()
 
-    def test__bad_upload_daily_global__green(self):
+    def test__create__bad_upload_daily_global__return_400(self):
         # arrange
         # act
         dates_before = self.cli.date_list()
@@ -49,7 +50,7 @@ class TestMonitor(TestCase):
         self.assertEquals(0, len(dates_before.data['results']))
         self.assertEquals(0, len(dates_after.data['results']))
 
-    def test__bad_upload_series_global__green(self):
+    def test__create__bad_upload_series_global__return_400(self):
         # arrange
         # act
         dates_before = self.cli.date_list()
@@ -60,7 +61,7 @@ class TestMonitor(TestCase):
         self.assertEquals(0, len(dates_before.data['results']))
         self.assertEquals(0, len(dates_after.data['results']))
 
-    def test__bad_upload_series_US__green(self):
+    def test__create__bad_upload_series_US__return_400(self):
         # arrange
         # act
         dates_before = self.cli.date_list()
@@ -71,7 +72,7 @@ class TestMonitor(TestCase):
         self.assertEquals(0, len(dates_before.data['results']))
         self.assertEquals(0, len(dates_after.data['results']))
 
-    def test__upload_time_series_global__green(self):
+    def test__create__upload_time_series_global__return_201(self):
         # arrange
         # act
         dates_before = self.cli.date_list()
@@ -81,8 +82,14 @@ class TestMonitor(TestCase):
         self.assertEquals(201, res.status_code)
         self.assertEquals(0, len(dates_before.data['results']))
         self.assertEquals(1944, dates_after.data['count'])
+        self.assertEquals(0, dates_after.data['results'][0]['number'])
+        self.assertEquals("confirmed", dates_after.data['results'][0]['title'])
+        self.assertEquals('2020-01-23', dates_after.data['results'][0]['date'])
+        self.assertEquals("Afghanistan", dates_after.data['results'][0]['country'])
+        self.assertEquals('nan', dates_after.data['results'][0]['province_state'])
+        self.assertEquals(None, dates_after.data['results'][0]['combined_key'])
 
-    def test__upload_daily_global__green(self):
+    def test__create__upload_daily_global__return_201(self):
         # arrange
         # act
         dates_before = self.cli.date_list()
@@ -92,26 +99,6 @@ class TestMonitor(TestCase):
         self.assertEquals(201, res.status_code)
         self.assertEquals(0, len(dates_before.data['results']))
         self.assertEquals(16, len(dates_after.data['results']))
-
-    def test__content_time_series_global__green(self):
-        # arrange
-        # act
-        self.cli.date_create(TIME_SERIES_CONFIRMED_GLOBAL_PATH)
-        dates_after = self.cli.date_list()
-        # assert
-        self.assertEquals(0, dates_after.data['results'][0]['number'])
-        self.assertEquals("confirmed", dates_after.data['results'][0]['title'])
-        self.assertEquals('2020-01-23', dates_after.data['results'][0]['date'])
-        self.assertEquals("Afghanistan", dates_after.data['results'][0]['country'])
-        self.assertEquals('nan', dates_after.data['results'][0]['province_state'])
-        self.assertEquals(None, dates_after.data['results'][0]['combined_key'])
-
-    def test__content_daily__green(self):
-        # arrange
-        # act
-        self.cli.date_create(DAILY_REPORT_PATH)
-        dates_after = self.cli.date_list()
-        # assert
         self.assertEquals(52513, dates_after.data['results'][0]['number'])
         self.assertEquals("confirmed", dates_after.data['results'][0]['title'])
         self.assertEquals('2021-01-01', dates_after.data['results'][0]['date'])
@@ -119,7 +106,7 @@ class TestMonitor(TestCase):
         self.assertEquals('nan', dates_after.data['results'][0]['province_state'])
         self.assertEquals("Afghanistan", dates_after.data['results'][0]['combined_key'])
 
-    def test__filter_countries__green(self):
+    def test__filter_dates__filter_countries__return_200_and_json(self):
         # arrange
         filter_data = {
             "titles": [],
@@ -138,7 +125,7 @@ class TestMonitor(TestCase):
         self.assertEquals(200, res.status_code)
         self.assertEquals(12, len(res.data['results']))
 
-    def test__filter_titles__green(self):
+    def test__filter_date__filter_titles__return_200_and_json(self):
         # arrange
         filter_data = {
             "titles": ["confirmed", "active"],
@@ -156,7 +143,7 @@ class TestMonitor(TestCase):
         self.assertEquals(200, res.status_code)
         self.assertEquals(8, len(res.data['results']))
 
-    def test__filter_provinces_states__green(self):
+    def test__filter_date__filter_provinces_states__return_200_and_json(self):
         # arrange
         filter_data = {
             "titles": [],
@@ -174,7 +161,7 @@ class TestMonitor(TestCase):
         self.assertEquals(200, res.status_code)
         self.assertEquals(6, len(res.data['results']))
 
-    def test__filter_combined_keys__green(self):
+    def test__filter_date__filter_combined_keys__return_200_and_json(self):
         # arrange
         filter_data = {
             "titles": [],
@@ -192,7 +179,7 @@ class TestMonitor(TestCase):
         self.assertEquals(200, res.status_code)
         self.assertEquals(6, len(res.data['results']))
 
-    def test__multiple_filters__green(self):
+    def test__filter_date__multiple_filters__return_200_and_json(self):
         # arrange
         filter_data = {
             "titles": [],
@@ -212,7 +199,7 @@ class TestMonitor(TestCase):
         self.assertEquals(200, res.status_code)
         self.assertEquals(3, len(res.data['results']))
 
-    def test_format__csv__green(self):
+    def test__filter_date__format__csv__return_200_and_csv(self):
         # arrange
         filter_data = {
             "titles": ["confirmed"],
@@ -238,8 +225,7 @@ class TestMonitor(TestCase):
         self.assertEquals(200, res.status_code)
         self.assertEquals(expected_res_replace.split(',')[:-2], res_replace.split(',')[:-2])
 
-
-    def test__bad_format_request__date_from_1__return_400(self):
+    def test__filter_date__bad_format_request__date_from_1__return_400(self):
         # arrange
         filter_data = {
             "titles": [],
@@ -256,7 +242,7 @@ class TestMonitor(TestCase):
         # assert
         self.assertEquals(400, res.status_code)
 
-    def test__bad_format_request__date_from_2__return_400(self):
+    def test__filter_date__bad_format_request__date_from_2__return_400(self):
         # arrange
         filter_data = {
             "titles": [],
@@ -273,7 +259,7 @@ class TestMonitor(TestCase):
         # assert
         self.assertEquals(400, res.status_code)
 
-    def test__bad_format_request__date_to_1__return_400(self):
+    def test__filter_date__bad_format_request__date_to_1__return_400(self):
         # arrange
         filter_data = {
             "titles": [],
@@ -290,7 +276,7 @@ class TestMonitor(TestCase):
         # assert
         self.assertEquals(400, res.status_code)
 
-    def test__bad_format_request__date_to_2__return_400(self):
+    def test__filter_date__bad_format_request__date_to_2__return_400(self):
         # arrange
         filter_data = {
             "titles": [],
@@ -307,7 +293,7 @@ class TestMonitor(TestCase):
         # assert
         self.assertEquals(400, res.status_code)
 
-    def test__bad_format_request__titles__return_400(self):
+    def test__filter_date__bad_format_request__titles__return_400(self):
         # arrange
         filter_data = {
             "titles": "",
@@ -324,7 +310,7 @@ class TestMonitor(TestCase):
         # assert
         self.assertEquals(400, res.status_code)
 
-    def test__bad_format_request__countries__return_400(self):
+    def test__filter_date__bad_format_request__countries__return_400(self):
         # arrange
         filter_data = {
             "titles": [],
@@ -341,7 +327,7 @@ class TestMonitor(TestCase):
         # assert
         self.assertEquals(400, res.status_code)
 
-    def test__bad_format_request__provinces__return_400(self):
+    def test__filter_date__bad_format_request__provinces__return_400(self):
         # arrange
         filter_data = {
             "titles": [],
@@ -358,7 +344,7 @@ class TestMonitor(TestCase):
         # assert
         self.assertEquals(400, res.status_code)
 
-    def test__bad_format_request__combined_keys__return_400(self):
+    def test__filter_date__bad_format_request__combined_keys__return_400(self):
         # arrange
         filter_data = {
             "titles": [],
@@ -375,7 +361,7 @@ class TestMonitor(TestCase):
         # assert
         self.assertEquals(400, res.status_code)
 
-    def test__bad_format_request__format_1__return_400(self):
+    def test__filter_date__bad_format_request__format_1__return_400(self):
         # arrange
         filter_data = {
             "titles": [],
@@ -392,7 +378,7 @@ class TestMonitor(TestCase):
         # assert
         self.assertEquals(400, res.status_code)
 
-    def test__bad_format_request__format_2__return_400(self):
+    def test__filter_date__bad_format_request__format_2__return_400(self):
         # arrange
         filter_data = {
             "titles": [],
@@ -409,7 +395,7 @@ class TestMonitor(TestCase):
         # assert
         self.assertEquals(400, res.status_code)
 
-    def test__delete_all_dates__green(self):
+    def test__filter_date__delete_all_dates__return_200(self):
         # arrange
         # act
         dates_before_addition = self.cli.date_list()
