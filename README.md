@@ -17,6 +17,8 @@ COVID-19 Monitor app can be manually tested either with [Postman](https://www.po
 To learn more about testing the app with the frontend (desktop only) please watch the [frontend video presentation](https://youtu.be/82D2FRRec7g) (sound on!).
 The frontend is communicating with the backend and database via the API.
 
+Please note that the csvs you upload must be one of the four types specified in the assignment handout or a bad request error will be returned. Note that if some row has non integer values for the deaths/confirmed cases/active cases etc then instead of returning an error our program will simply skip that single input. 
+
 To manually test the API directly please use Postman - please see instructions below.
 
 ## Guidelines for Manual Testing with Postman
